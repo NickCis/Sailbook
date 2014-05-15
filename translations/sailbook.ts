@@ -19,6 +19,14 @@
         <source>no items</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>like</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>don&apos;t show</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainMenu</name>

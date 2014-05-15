@@ -11,7 +11,7 @@
 
 
 Request::Request(QObject *parent) :
-    QObject(parent) , lm(NULL), req(""), m(this), q(""), tok(""), loc("")
+    QObject(parent) , lm(NULL), req(""), m(this), q(""), loc(""), type(Request::Get)
 {
 }
 
@@ -33,7 +33,7 @@ void Request::send() {
 
     QUrlQuery query(url);
     if(! query.hasQueryItem(QStringLiteral("access_token")))
-        query.addQueryItem(QStringLiteral("access_token"), this->tok);
+        query.addQueryItem(QStringLiteral("access_token"), this->lm->getToken());
 
     if(this->loc != "" && !query.hasQueryItem(QStringLiteral("locale")))
         query.addQueryItem(QStringLiteral("locale"), this->loc);
@@ -45,12 +45,21 @@ void Request::send() {
 
     //request.setRawHeader("User-Agent", "Sailbook 0.1");
 
-    this->m.get(request);
     connect(&this->m, SIGNAL(finished(QNetworkReply*)), this, SLOT(finished(QNetworkReply*)));
     //connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
     //        this, SLOT(error(QNetworkReply::NetworkError)));
     //connect(reply, SIGNAL(sslErrors(QList<QSslError>)),
     //        this, SLOT(sslErrors(QList<QSslError>)));
+
+    qDebug() << "type " << this->type;
+    if(this->type == Request::Post){
+        QByteArray data;
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+        this->m.post(request, data);
+    }else if(this->type == Request::Delete)
+        this->m.deleteResource(request);
+    else
+        this->m.get(request);
 
 }
 
@@ -94,15 +103,6 @@ void Request::setQuery(const QString &query){
     this->q = query;
 }
 
-
-QString Request::token() const{
-    return this->tok;
-}
-
-void Request::setToken(const QString &t){
-    this->tok = t;
-}
-
 QString Request::locale() const{
     return this->loc;
 }
@@ -110,3 +110,19 @@ QString Request::locale() const{
 void Request::setLocale(const QString &l){
     this->loc = l;
 }
+
+Request::RequestType Request::getType() const{
+    return this->type;
+}
+
+void Request::setType(const Request::RequestType &t){
+    this->type = t;
+}
+
+//Request* Request::create(){
+//    return new Request();
+//}
+void Request::destroy(){
+    delete this;
+}
+

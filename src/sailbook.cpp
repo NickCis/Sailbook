@@ -32,6 +32,8 @@ int main(int argc, char *argv[]) {
     config.load();
 
     qmlRegisterType<Request>("Sailbook.Request", 1, 0, "Request");
+    qmlRegisterInterface<LoginManager>("LoginManager");
+    qmlRegisterSingletonType<Request>("Sailbook.Request", 1, 0, "Builder", NULL);
 
     LoginManager login(QStringLiteral(APPID), config.getValue(QStringLiteral("token")).toString());
     login.setExtendedPermission(LoginManager::ExtendedPermissions(

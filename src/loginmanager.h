@@ -15,6 +15,7 @@ public:
     explicit LoginManager(QString id, QString t, QObject *parent = 0);
     Q_INVOKABLE QString getAuthUrl();
     Q_INVOKABLE QString getToken();
+
     /** Flags taken from QFB project and modified to facebook graph V2. See the QFB licence. **/
     /**
          * @brief Extended permissions

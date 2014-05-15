@@ -9,7 +9,8 @@ SilicaListView {
     property string pagingPrevious: "";
     property string pagingNext: "";
     property bool loading: false;
-    property bool loadingNew: false;
+    property bool loadingBottom: false;
+    property bool loadingTop: false;
 
     function getModel(){
         return listModel;
@@ -31,19 +32,16 @@ SilicaListView {
         if(url === "")
             return;
 
-        var req = Request.request(page, {
+        new Request.Request({
             query: url
-        });
-
-        req.complete.connect(function(json){
+        }, function(json){
             me.loadData(json, save);
-            req.destroy();
-            me.loadingNew = false;
+            me.loadingBottom = false;
         });
     }
 
     function loadNext(){
-        me.loadingNew = true;
+        me.loadingBottom = true;
         me.load(me.pagingNext, { next: true });
     }
 
@@ -51,28 +49,11 @@ SilicaListView {
         me.load(me.pagingPrevious, { previous: true });
     }
 
-    footer: BusyIndicator{
-        id: busyIndicatorAddNew
-        anchors{
-            horizontalCenter: parent.horizontalCenter
-            topMargin: Theme.paddingSmall
-            bottomMargin: Theme.paddingSmall
-        }
-        running: true
-        size: BusyIndicatorSize.Medium
-        state: me.loadingNew ? "" : "HIDE"
-        states: [
-            State {
-                name: "HIDE"
-                PropertyChanges{
-                    target: busyIndicatorAddNew
-                    visible: false
-                    height: 0
-                    anchors.margins: 0
-                }
-            }
-        ]
-    }
+    /*anchors {
+        bottomPadding: me.loadingBottom ? busyIndicatorBottom.height : Theme.paddingSmall
+    }*/
+
+    spacing: Theme.paddingSmall
 
     model: ListModel{
         id: listModel
@@ -81,84 +62,97 @@ SilicaListView {
     delegate: ListItem {
         id: item
         width: parent.width
-        height: contentItem.childrenRect.height
+        height: contentItem.childrenRect.height + item.menu.height
         contentHeight: contentItem.childrenRect.height
 
         onClicked: console.log("Clicked " + index + " " + model)
-
-        Image {
-            id: img
-            source: "https://graph.facebook.com/v2.0/"+from["id"]+"/picture?height="+Theme.iconSizeLarge+"&width="+Theme.iconSizeLarge
-            width: Theme.iconSizeLarge
-            height: Theme.iconSizeLarge
-            anchors {
-                left: parent.left
-                top: parent.top
+        menu: ContextMenu {
+            MenuItem {
+                text: qsTr("like")
+                onClicked: Request.setLike(id)
+            }
+            MenuItem {
+                text: qsTr("don't show")
+                onClicked: console.log("don't show")
             }
         }
-        Label {
-            function title(){
-                if(story)
-                    return story;
-                var txt = from.name;
-                if(to)
-                    txt += " -> "+to.data[0].name;
 
-                return txt;
-            }
+        Item {
+            id: itemHeader
+            height: childrenRect.height
+            width: parent.width
 
-            id: origin
-            text: title()
-            font.pixelSize: Theme.fontSizeSmall
-            wrapMode: Text.WordWrap
-            maximumLineCount: 2
-            truncationMode: TruncationMode.Fade
-            anchors {
-                left: img.right
-                leftMargin: Theme.paddingSmall
-                right: parent.right
+            Image {
+                id: img
+                source: "https://graph.facebook.com/v2.0/"+from["id"]+"/picture?height="+Theme.iconSizeLarge+"&width="+Theme.iconSizeLarge
+                width: Theme.iconSizeLarge
+                height: Theme.iconSizeLarge
+                anchors {
+                    left: parent.left
+                    top: parent.top
+                }
             }
-        }
-        Label {
-            function timestamp() {
-                //var txt = Format.formatDate(created_time, Formatter.Timepoint)
-                var elapsed = Format.formatDate(new Date(created_time), Formatter.DurationElapsed)
-                //return txt + (elapsed ? ' (' + elapsed + ')' : '')
-                return elapsed;
+            Label {
+                function title(){
+                    if(story)
+                        return story;
+                    var txt = from.name;
+                    if(model.to && model.to.data)
+                        txt += " -> "+model.to.data[0].name;
+
+                    return txt;
+                }
+
+                id: origin
+                text: title()
+                font.pixelSize: Theme.fontSizeSmall
+                wrapMode: Text.WordWrap
+                maximumLineCount: 2
+                truncationMode: TruncationMode.Fade
+                anchors {
+                    left: img.right
+                    leftMargin: Theme.paddingSmall
+                    right: parent.right
+                }
             }
-            id: timestampLabel
-            text: timestamp()
-            font.pixelSize: Theme.fontSizeTiny
-            color: Theme.secondaryHighlightColor
-            anchors {
-                //top: origin.baseline
-                top: origin.bottom
-                //left: img.right
-                right: parent.right
-                //margins: Theme.paddingSmall
-                leftMargin: Theme.paddingSmall
-                rightMargin: Theme.paddingSmall
-                bottomMargin: Theme.paddingSmall
+            Label {
+                function timestamp() {
+                    return Format.formatDate(new Date(created_time), Formatter.DurationElapsed);
+                }
+                id: timestampLabel
+                text: timestamp()
+                font.pixelSize: Theme.fontSizeTiny
+                color: Theme.secondaryHighlightColor
+                anchors {
+                    //top: origin.baseline
+                    top: origin.bottom
+                    //left: img.right
+                    right: parent.right
+                    //margins: Theme.paddingSmall
+                    leftMargin: Theme.paddingSmall
+                    rightMargin: Theme.paddingSmall
+                    bottomMargin: Theme.paddingSmall
+                }
             }
-        }
-        Label {
-            id: body
-            visible: message ? true : false
-            text: visible ? message : ""
-            font.pixelSize: Theme.fontSizeExtraSmall
-            color: Theme.secondaryColor
-            wrapMode: Text.WordWrap
-            maximumLineCount: 4
-            truncationMode: TruncationMode.Fade
-            anchors {
-                top: timestampLabel.bottom
-                left: img.right
-                leftMargin: Theme.paddingSmall
-                right: parent.right
-            }
-            Component.onCompleted: {
-                if(!visible)
-                    height = 0;
+            Label {
+                id: body
+                visible: message ? true : false
+                text: visible ? message : ""
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
+                wrapMode: Text.WordWrap
+                maximumLineCount: 4
+                truncationMode: TruncationMode.Fade
+                anchors {
+                    top: timestampLabel.bottom
+                    left: img.right
+                    leftMargin: Theme.paddingSmall
+                    right: parent.right
+                }
+                Component.onCompleted: {
+                    if(!visible)
+                        height = 0;
+                }
             }
         }
         Loader {
@@ -175,7 +169,8 @@ SilicaListView {
             id: changingBody
             sourceComponent: getSource()
             anchors {
-                top: body.bottom > img.bottom ? body.bottom : img.bottom
+                //top: origin.height+timestampLabel.height+body.height > img.height ? body.bottom : img.bottom
+                top: itemHeader.bottom
                 left: parent.left
                 right: parent.right
                 margins: Theme.paddingSmall
@@ -258,8 +253,8 @@ SilicaListView {
                     }
 
                     Label {
-                        visible: caption ? true : false
-                        text: visible ? caption : ""
+                        visible: model.caption ? true : false
+                        text: visible ? model.caption : ""
                         font.pixelSize: Theme.fontSizeExtraSmall
                         color: Theme.secondaryColor
                         wrapMode: Text.WordWrap
@@ -293,18 +288,24 @@ SilicaListView {
                 if(comments && comments.data && comments.data.length)
                     txt.push(comments.data.length + " " + qsTr("comments"));
 
-                return txt.join(" · ");
+                return txt.join(" · ") || "";
             }
             text: myText()
+            visible: text != ""? true: false
             font.pixelSize: Theme.fontSizeTiny
             color: Theme.secondaryHighlightColor
             anchors {
                 topMargin: Theme.paddingSmall
-                leftMargin: Theme.paddingSmall
+                leftMargin: img.width + Theme.paddingSmall
                 rightMargin: Theme.paddingSmall
                 top: changingBody.bottom
-                left: img.right
+                left: parent.left
                 right: parent.right
+            }
+
+            Component.onCompleted: {
+                if(!visible)
+                    height = 0;
             }
         }
     }
@@ -322,6 +323,31 @@ SilicaListView {
         text: qsTr("no items");
     }
 
+    BusyIndicator{
+        id: busyIndicatorTop
+        anchors{
+            horizontalCenter: parent.horizontalCenter
+            topMargin: Theme.paddingSmall
+            bottomMargin: Theme.paddingSmall
+            top: parent.top
+        }
+        running: true
+        size: BusyIndicatorSize.Medium
+        visible: me.loadingTop
+    }
+
+    BusyIndicator{
+        id: busyIndicatorBottom
+        anchors{
+            horizontalCenter: parent.horizontalCenter
+            topMargin: Theme.paddingSmall
+            bottomMargin: Theme.paddingSmall
+            bottom: parent.bottom
+        }
+        running: true
+        size: BusyIndicatorSize.Medium
+        visible: me.loadingBottom
+    }
 }
 
 
