@@ -9,8 +9,10 @@ SilicaListView {
     property string pagingPrevious: "";
     property string pagingNext: "";
     property bool loading: false;
-    property bool loadingBottom: false;
     property bool loadingTop: false;
+    property bool loadingBottom: false;
+    property double loadingProgress: 0;
+    property string myId: Configurator.getValue("user").id;
 
     function getModel(){
         return listModel;
@@ -32,11 +34,27 @@ SilicaListView {
         if(url === "")
             return;
 
-        new Request.Request({
-            query: url
-        }, function(json){
+        var req = SessionManager.createRequest(url);
+        req.complete.connect(function(json){
             me.loadData(json, save);
+            me.loading = false;
+            me.loadingTop = false;
             me.loadingBottom = false;
+            me.loadingProgress = 0;
+        });
+
+        req.downloadProgress.connect(function(bytes, bytesTotal){
+            if(bytesTotal != -1)
+                me.loadingProgress = bytes / bytesTotal;
+        });
+
+        req.error.connect(function(){
+            me.loading = false;
+            me.loadingTop = false;
+            me.loadingBottom = false;
+            me.loadingProgress = 0;
+            viewPlaceHolder.text = qsTr("Error loading")
+            Request.errorNotification(qsTr("Error loading"));
         });
     }
 
@@ -64,12 +82,28 @@ SilicaListView {
         width: parent.width
         height: contentItem.childrenRect.height + item.menu.height
         contentHeight: contentItem.childrenRect.height
+        function isLiked(){
+            if(model && model.likes && model.likes.data){
+                var likes = model.likes.data;
+                for(var i=0, l; l = likes[i]; i++){
+                    if(l.id == myId)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        property bool liked: isLiked()
 
         onClicked: console.log("Clicked " + index + " " + model)
         menu: ContextMenu {
             MenuItem {
-                text: qsTr("like")
-                onClicked: Request.setLike(id)
+                text: liked ? qsTr("dislike") : qsTr("like")
+                onClicked:{
+                    Request["set"+(liked?"Dislike":"Like")](id, function(){
+                        liked = !liked;
+                    });
+                }
             }
             MenuItem {
                 text: qsTr("don't show")
@@ -311,14 +345,20 @@ SilicaListView {
     }
 
     BusyIndicator {
-        id: loader
         anchors.centerIn: parent
         running: true
         size: BusyIndicatorSize.Large
-        visible: me.loading? true : false
+        visible: me.loading && me.loadingProgress === 0? true : false
+    }
+
+    ProgressCircle {
+        anchors.centerIn: parent
+        value: me.loadingProgress
+        visible: me.loading && me.loadingProgress > 0? true : false
     }
 
     ViewPlaceholder {
+        id: viewPlaceHolder
         enabled: !me.loading && me.count == 0
         text: qsTr("no items");
     }

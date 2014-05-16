@@ -1,18 +1,19 @@
-#ifndef LOGINMANAGER_H
-#define LOGINMANAGER_H
+#ifndef SESSIONMANAGER_H
+#define SESSIONMANAGER_H
 
 #include <QObject>
 #include <QtCore/QUrl>
 #include <QtCore/QStringList>
+#include "request.h"
 
-class LoginManager : public QObject
+class SessionManager : public QObject
 {
     Q_OBJECT
     Q_ENUMS(ExtendedPermission)
     Q_ENUMS(UserDataPermission)
 public:
-    explicit LoginManager(QString id, QObject *parent = 0);
-    explicit LoginManager(QString id, QString t, QObject *parent = 0);
+    explicit SessionManager(QString id, QObject *parent = 0);
+    explicit SessionManager(QString id, QString t, QObject *parent = 0);
     Q_INVOKABLE QString getAuthUrl();
     Q_INVOKABLE QString getToken();
 
@@ -261,9 +262,16 @@ public:
     Q_DECLARE_FLAGS(UserDataPermissions, UserDataPermission)
     Q_FLAGS(UserDataPermissions)
 
-    void setExtendedPermission(LoginManager::ExtendedPermissions extendedPermissions);
-    void setUserDataPermission(LoginManager::UserDataPermissions userDataPermissions);
+    void setExtendedPermission(SessionManager::ExtendedPermissions extendedPermissions);
+    void setUserDataPermission(SessionManager::UserDataPermissions userDataPermissions);
     void clearPermissions();
+
+    Q_INVOKABLE Request* createRequest(const QString &reqStr, QObject *parent=0);
+    Q_INVOKABLE Request* createRequest(const QString &reqStr, const int &type, QObject *parent=0);
+    Q_INVOKABLE Request* createRequest(const QString &reqStr, const Request::RequestType &type, QObject *parent=0);
+    //TODO: send data
+    //Q_INVOKABLE Request* createRequest(const QString &query, const Request::RequestType &type, QObject *parent=0);
+
 
 signals:
     void newToken(QString t);
@@ -276,6 +284,7 @@ protected:
     QString appId;
     QString token;
     QStringList permissions;
+    QNetworkAccessManager man;
 
 };
 

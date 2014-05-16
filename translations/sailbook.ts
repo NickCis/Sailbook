@@ -27,6 +27,14 @@
         <source>don&apos;t show</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>dislike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error loading</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainMenu</name>
@@ -51,6 +59,21 @@
     </message>
     <message>
         <source>Reload</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>request</name>
+    <message>
+        <source>Success</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error while liking</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error while disliking</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

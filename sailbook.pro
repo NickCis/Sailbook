@@ -18,14 +18,13 @@ SOURCES += \
     src/request.cpp \
     src/configurator.cpp \
     #src/loginmanager_old.cpp \
-    src/loginmanager.cpp \
-    src/sailbook.cpp
+    src/sailbook.cpp \
+    src/sessionmanager.cpp
 
 OTHER_FILES += qml/sailbook.qml \
     qml/cover/CoverPage.qml \
     translations/*.ts \
     qml/pages/NewsFeed.qml \
-    qml/components/Request.qml \
     qml/pages/TokenGetter.qml \
     qml/pages/MainMenu.qml \
     qml/js/request.js \
@@ -44,6 +43,6 @@ TRANSLATIONS += translations/sailbook-de.ts
 HEADERS += \
     src/request.h \
     src/configurator.h \
+    src/sessionmanager.h
     #src/loginmanager_old.h \
-    src/loginmanager.h
 

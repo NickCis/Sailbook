@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QVariant>
 #include <QJsonObject>
-#include "request.h"
 
 class Configurator : public QObject
 {
@@ -15,12 +14,6 @@ public:
     Q_INVOKABLE bool save();
     Q_INVOKABLE void setValue(QString name, QVariant value);
     Q_INVOKABLE QVariant getValue(QString name);
-
-    // TODO: esto deberia ser un metodo statico de Request
-    Q_INVOKABLE Request* createRequest(){
-        return new Request();
-    }
-
 
 signals:
 

@@ -38,12 +38,54 @@ ApplicationWindow
     id: appwin
     initialPage: Component { MainMenu { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
+    property bool isPortrait: appwin.orientation == Orientation.Portrait || appwin.orientation == Orientation.PortraitInverted ? true : false
 
     Component.onCompleted: {
-        if(LoginManager.getToken() === ""){
+        if(SessionManager.getToken() === ""){
             pageStack.push(Qt.resolvedUrl("pages/TokenGetter.qml"));
         }else if(!Configurator.getValue("user"))
             Request.getUserData(appwin);
+    }
+
+    Rectangle {
+        property var onClose: function(){
+            notification.visible = false;
+        }
+
+        id: notification
+        color: Theme.rgba(Theme.highlightColor, 0.5)
+        visible: false
+        //height: Theme.itemSizeExtraSmall
+        height: notificationLabel.height
+        width: parent.width
+        radius: 0
+        anchors {
+            top: parent.top
+            left: parent.left
+            right: parent.right
+
+        }
+        //onClicked: visible = false;
+        Label {
+            id: notificationLabel
+            //color: Theme.highlightColor
+            font.pixelSize: Theme.fontSizeExtraSmall
+            anchors {
+                left: parent.left
+                right: parent.right
+                margins: Theme.paddingSmall
+            }
+            //lineHeightMode: Text.FixedHeight
+            //lineHeight: parent.height
+            text: "error"
+        }
+        TouchBlocker {
+            anchors.fill: parent
+        }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: notification.onClose()
+        }
     }
 }
 

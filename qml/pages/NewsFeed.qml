@@ -17,6 +17,16 @@ import "../components"
 
 Page {
     id: page
+    function loadData(){
+        /*var req = SessionManager.createRequest("/me/home");
+        req.complete.connect(function(json){
+            feedList.loadData(json, { next: true, previous: true});
+            feedList.loading = false;
+        });*/
+        feedList.loading = true;
+        feedList.getModel().clear();
+        feedList.load("/me/home", { next: true, previous: true});
+    }
 
     FeedList {
         id: feedList
@@ -31,7 +41,7 @@ Page {
         PullDownMenu {
             MenuItem {
                 text: qsTr("Reload")
-                onClicked: req.send()
+                onClicked: page.loadData()
             }
         }
 
@@ -42,13 +52,5 @@ Page {
             }
         }
     }
-
-    Request {
-        id: req
-        query: "/me/home"
-        function cbComplete(json){
-            feedList.loadData(json, { next: true, previous: true});
-            feedList.loading = false;
-        }
-    }
+    Component.onCompleted: page.loadData()
 }

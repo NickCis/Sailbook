@@ -18,7 +18,7 @@
 #include <sailfishapp.h>
 #include <QtDebug>
 
-#include "loginmanager.h"
+#include "sessionmanager.h"
 #include "request.h"
 #include "configurator.h"
 
@@ -31,53 +31,53 @@ int main(int argc, char *argv[]) {
     Configurator config;
     config.load();
 
-    qmlRegisterType<Request>("Sailbook.Request", 1, 0, "Request");
-    qmlRegisterInterface<LoginManager>("LoginManager");
-    qmlRegisterSingletonType<Request>("Sailbook.Request", 1, 0, "Builder", NULL);
+    //qmlRegisterType<Request>("Sailbook.Request", 1, 0, "Request");
+    qmlRegisterUncreatableType<Request>("App.Sailbook", 1, 0, "Request", QStringLiteral("Error"));
+    //qmlRegisterInterface<SessionManager>("SessionManager");
 
-    LoginManager login(QStringLiteral(APPID), config.getValue(QStringLiteral("token")).toString());
-    login.setExtendedPermission(LoginManager::ExtendedPermissions(
-        LoginManager::Email |
-        LoginManager::ManageNotifications |
-        LoginManager::ManagePages |
-        LoginManager::PublishActions |
-        LoginManager::ReadFriendList |
-        LoginManager::ReadInsights |
-        LoginManager::ReadMailbox |
-        LoginManager::ReadPageMailboxes |
-        LoginManager::ReadStream |
-        LoginManager::RsvpEvent
+    SessionManager session(QStringLiteral(APPID), config.getValue(QStringLiteral("token")).toString());
+    session.setExtendedPermission(SessionManager::ExtendedPermissions(
+        SessionManager::Email |
+        SessionManager::ManageNotifications |
+        SessionManager::ManagePages |
+        SessionManager::PublishActions |
+        SessionManager::ReadFriendList |
+        SessionManager::ReadInsights |
+        SessionManager::ReadMailbox |
+        SessionManager::ReadPageMailboxes |
+        SessionManager::ReadStream |
+        SessionManager::RsvpEvent
     ));
 
-    login.setUserDataPermission(LoginManager::UserDataPermissions(
-        LoginManager::UserAboutMe |
-        LoginManager::UserActionsBooks |
-        LoginManager::UserActionsMusic |
-        LoginManager::UserActionsNews |
-        LoginManager::UserActionsVideo |
-        LoginManager::UserActivities |
-        LoginManager::UserBirthday |
-        LoginManager::UserEducationHistory |
-        LoginManager::UserEvents |
-        LoginManager::UserFriends |
-        LoginManager::UserGamesActivity |
-        LoginManager::UserGroups |
-        LoginManager::UserHometown |
-        LoginManager::UserInterests |
-        LoginManager::UserLikes |
-        LoginManager::UserLocation |
-        LoginManager::UserPhotos |
-        LoginManager::UserRelationshipDetails |
-        LoginManager::UserRelationships |
-        LoginManager::UserReligionPolitics |
-        LoginManager::UserStatus |
-        LoginManager::UserTaggedPlaces |
-        LoginManager::UserVideos |
-        LoginManager::UserWebsite |
-        LoginManager::UserWorkHistory
+    session.setUserDataPermission(SessionManager::UserDataPermissions(
+        SessionManager::UserAboutMe |
+        SessionManager::UserActionsBooks |
+        SessionManager::UserActionsMusic |
+        SessionManager::UserActionsNews |
+        SessionManager::UserActionsVideo |
+        SessionManager::UserActivities |
+        SessionManager::UserBirthday |
+        SessionManager::UserEducationHistory |
+        SessionManager::UserEvents |
+        SessionManager::UserFriends |
+        SessionManager::UserGamesActivity |
+        SessionManager::UserGroups |
+        SessionManager::UserHometown |
+        SessionManager::UserInterests |
+        SessionManager::UserLikes |
+        SessionManager::UserLocation |
+        SessionManager::UserPhotos |
+        SessionManager::UserRelationshipDetails |
+        SessionManager::UserRelationships |
+        SessionManager::UserReligionPolitics |
+        SessionManager::UserStatus |
+        SessionManager::UserTaggedPlaces |
+        SessionManager::UserVideos |
+        SessionManager::UserWebsite |
+        SessionManager::UserWorkHistory
     ));
 
-    view->rootContext()->setContextProperty("LoginManager", &login);
+    view->rootContext()->setContextProperty("SessionManager", &session);
     view->rootContext()->setContextProperty("Configurator", &config);
     view->setSource(SailfishApp::pathTo("qml/sailbook.qml"));
     view->show();
