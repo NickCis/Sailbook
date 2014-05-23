@@ -95,7 +95,12 @@ SilicaListView {
 
         property bool liked: isLiked()
 
-        onClicked: console.log("Clicked " + index + " " + model)
+        onClicked: {
+            console.log("Clicked " + index + " " + model);
+            pageStack.push(Qt.resolvedUrl("../pages/GenericElement.qml"), {
+                myData: model
+            });
+        }
         menu: ContextMenu {
             MenuItem {
                 text: liked ? qsTr("dislike") : qsTr("like")

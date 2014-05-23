@@ -82,3 +82,18 @@ function errorNotification(text, cb){
 
     notification.onClose = cb;
 }
+
+function sendComment(id, text, cb){
+    if(!text.length)
+        return
+    var req = SessionManager.createRequest("/"+id+"/comments?message="+encodeURIComponent(text), Sailbook.Request.Post);
+    req.complete.connect(function(Json){
+        errorNotification(qsTr("Success"));
+        if(typeof(cb) == 'function')
+            cb(Json);
+    });
+
+    req.error.connect(function(){
+        errorNotification(qsTr("Error while disliking"));
+    });
+}

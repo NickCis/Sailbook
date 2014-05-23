@@ -37,6 +37,37 @@
     </message>
 </context>
 <context>
+    <name>GenericElement</name>
+    <message>
+        <source>dislike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>like</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>share</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>erase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap to enter comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>likes</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MainMenu</name>
     <message>
         <source>Quit</source>
