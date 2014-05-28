@@ -60,6 +60,17 @@ Page {
             }
         }
 
+        Rectangle {
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+                bottom: likesLabel.bottom
+            }
+            color: Theme.rgba(Theme.highlightColor, 0.1)
+
+        }
+
         PageHeader {
             id: header
             //title: "Loading"
@@ -78,10 +89,11 @@ Page {
             Column {
                 anchors{
                     left: parent.left
-                    //leftMargin: profilePic.width
+                    leftMargin: profilePic.width
                     right: profilePic.left
+                    //right: parent.right
                     verticalCenter: parent.verticalCenter
-                    rightMargin: Theme.paddingSmall
+                    rightMargin: Theme.paddingMedium
                 }
                 //spacing: Theme.paddingSmall
                 Label {
@@ -94,7 +106,8 @@ Page {
 
                         return txt;
                     }
-                    text: title()
+                    //text: title()
+                    text: page.myData.from.name
                     width: parent.width
                     color: Theme.highlightColor
                     font.pixelSize: Theme.fontSizeMedium
@@ -113,6 +126,64 @@ Page {
                 }
             }
         }
+        Label {
+            function buildText(){
+                var txt = [];
+                if(page.myData.to && page.myData.to.name)
+                    txt.push(qsTr("To")+" "+page.myData.to.name);
+
+                console.log(page.myData.to);
+                for(var i=0, it, items = [
+                        //(page.myData.to || {}).name,
+                        page.myData.story,
+                        page.myData.message
+                    ], len = items.length; (it = items[i]) || i < len; i++){
+                    if(it)
+                        txt.push(it);
+                }
+
+                return txt.join("\n");
+            }
+            id: rowImgText
+            anchors {
+                top: header.bottom
+                left: parent.left
+                right: parent.right
+                margins: Theme.paddingMedium
+            }
+            width: parent.width
+            text: buildText()
+            wrapMode: Text.WordWrap
+            font.pixelSize: Theme.fontSizeExtraSmall
+            color: Theme.highlightColor
+        }
+
+        Label {
+            function myText(){
+                if(page.myData.likes && page.myData.likes.data && page.myData.likes.data.length)
+                    return page.myData.likes.data.length + " " + qsTr("likes");
+                return "";
+            }
+
+            id: likesLabel
+            //width: parent.width
+            color: Theme.secondaryHighlightColor
+            font.pixelSize: Theme.fontSizeTiny
+            anchors {
+                top: rowImgText.bottom
+                right: parent.right
+                margins: Theme.paddingSmall
+            }
+            text: myText()
+            //visible: text != ""? true: false
+
+            //Component.onCompleted: {
+            //    if(!visible)
+            //        height = 0;
+            //}
+
+        }
+
 
         Loader {
             function getSource(){
@@ -126,10 +197,10 @@ Page {
                     return pictureOnly;
                 }
 
-                if(page.myData.message){
+                /*if(page.myData.message){
                     console.log("messageOnly")
                     return messageOnly
-                }
+                }*/
 
                 console.log("undefined")
 
@@ -139,11 +210,8 @@ Page {
             id: body
             sourceComponent: getSource()
             anchors {
-                top: header.bottom
-                //bottom: commentsList.top
-
-                topMargin: Theme.paddingSmall
-                bottomMargin: Theme.paddingSmall
+                top: likesLabel.bottom
+                margins: Theme.paddingSmall
             }
             width: parent.width
 
@@ -195,7 +263,6 @@ Page {
                 }
             }
         }
-
         Component {
             id: pictureOnly
             Item {
@@ -235,7 +302,7 @@ Page {
             }
         }
 
-        Component {
+        /*Component {
             id: messageOnly
             Label {
                 text: page.myData.message
@@ -243,13 +310,14 @@ Page {
                 color: Theme.secondaryColor
                 wrapMode: Text.WordWrap
             }
-        }
+        }*/
 
         SilicaListView{
             interactive: false
             id: commentsList
             height: contentItem.childrenRect.height
             anchors {
+                //top: body.bottom
                 top: body.bottom
                 topMargin: Theme.paddingMedium
                 bottomMargin: Theme.paddingSmall

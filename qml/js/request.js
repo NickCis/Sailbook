@@ -39,12 +39,26 @@ Request.prototype.onError = function(){
 }*/
 
 function getUserData(parent, cb){
-    var req = SessionManager.createRequest("/me");
+    //var req = SessionManager.createRequest("/me");
+    var req = SessionManager.createRequest("/?batch=[{\"method\":\"GET\",\"relative_url\":\"me\"},{\"method\":\"GET\",\"relative_url\":\"me/taggable_friends\"}]&include_headers=false", Sailbook.Request.Post);
     req.complete.connect(function(json){
-        Configurator.setValue("user", json);
+        var userData = {}, taggableFriends = [];
+        if(json[0].code == 200){
+            try {
+                userData = JSON.parse(json[0].body).data;
+                Configurator.setValue("user", userData);
+            } catch(e){}
+        }
+
+        if(json[1].code == 200){
+            try {
+                taggableFriends = JSON.parse(json[1].body);
+                Configurator.setValue("friends", taggableFriends);
+            } catch(e){}
+        }
         Configurator.save();
         if(typeof(cb) == "function")
-            cb(json);
+            cb(userData, taggableFriends);
     });
 }
 

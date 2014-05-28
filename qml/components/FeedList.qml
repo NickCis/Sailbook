@@ -137,7 +137,7 @@ SilicaListView {
                         return story;
                     var txt = from.name;
                     if(model.to && model.to.data)
-                        txt += " -> "+model.to.data[0].name;
+                        txt += " > "+model.to.data[0].name;
 
                     return txt;
                 }

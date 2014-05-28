@@ -22,7 +22,7 @@
 #include "request.h"
 #include "configurator.h"
 
-#define APPID "191282437574280"
+#define APPID "1454642208115547"
 
 int main(int argc, char *argv[]) {
     QGuiApplication* app = SailfishApp::application(argc, argv);

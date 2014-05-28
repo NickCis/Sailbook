@@ -64,7 +64,7 @@ Page {
 
                 ListElement {
                     name: "Get Token"
-                    link: "WebView.qml"
+                    link: "TokenGetter.qml"
                     section: "Favorites"
                 }
 
