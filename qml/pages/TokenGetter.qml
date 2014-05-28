@@ -9,22 +9,24 @@ Page {
 
         signal checkUrl(url u);
 
-        anchors {
+        /*anchors {
             top: parent.top
             left: parent.left
             right: parent.right
             bottom: parent.bottom
-        }
-        url: LoginManager.getAuthUrl()
+        }*/
+        anchors.fill: parent
+
+        url: SessionManager.getAuthUrl()
         onUrlChanged: {
             webView.checkUrl(url);
             //urlField.text = url;
         }
         Component.onCompleted: {
-            webView.checkUrl.connect(LoginManager.checkUrl);
+            webView.checkUrl.connect(SessionManager.checkUrl);
         }
         Connections {
-            target: LoginManager
+            target: SessionManager
             onNewToken:{
                 Configurator.setValue("token", t);
                 Configurator.save();

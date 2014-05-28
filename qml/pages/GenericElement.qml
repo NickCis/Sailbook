@@ -39,7 +39,9 @@ Page {
         anchors.fill: parent
         //contentHeight: height
         //height: contentItem.childrenRect.height
-        contentHeight: contentItem.childrenRect.height
+        property int childHeight:header.height + body.height + commentsList.height + commentInputRow.height + Theme.paddingSmall
+        contentHeight: parent.height > childHeight ? parent.height : childHeight
+        //contentHeight: contentItem.childrenRect.height
 
         VerticalScrollDecorator {}
 
@@ -139,6 +141,9 @@ Page {
             anchors {
                 top: header.bottom
                 //bottom: commentsList.top
+
+                topMargin: Theme.paddingSmall
+                bottomMargin: Theme.paddingSmall
             }
             width: parent.width
 
@@ -246,7 +251,9 @@ Page {
             height: contentItem.childrenRect.height
             anchors {
                 top: body.bottom
-                //bottom: commentInput.top
+                topMargin: Theme.paddingMedium
+                bottomMargin: Theme.paddingSmall
+                //bottom: commentInputRow.top
             }
 
             width: parent.width
@@ -342,65 +349,107 @@ Page {
                     }
                 }
             }
+        }
 
-            footer: Row {
-                width: parent.width
-                //anchors.top: commentsList.bottom
-                //height: Theme.iconSizeMedium
-                height: Theme.itemSizeMedium
-                anchors.margins: Theme.paddingSmall
-                spacing: Theme.paddingSmall
+        Row {
+            id:commentInputRow
+            width: parent.width
+            anchors{
+                topMargin: Theme.paddingSmall
+                bottom: parent.bottom
+            }
+            //height: Theme.iconSizeMedium
+            height: Theme.itemSizeSmall
+            anchors.margins: Theme.paddingSmall
+            spacing: Theme.paddingSmall
 
-                Image {
-                    id: commentImage
-                    source: "https://graph.facebook.com/v2.0/me/picture?type=square&access_token="+SessionManager.getToken();
-                    width: Theme.iconSizeMedium
-                    height: Theme.iconSizeMedium
-                }
+            Image {
+                id: commentImage
+                anchors.verticalCenter: parent.verticalCenter
+                source: "https://graph.facebook.com/v2.0/me/picture?type=square&access_token="+SessionManager.getToken();
+                width: Theme.iconSizeMedium
+                height: Theme.iconSizeMedium
+            }
 
-                TextField{
-                    id:commentInput
-                    width: parent.width - Theme.iconSizeMedium - commentInputAddImage.width
-                    font.pixelSize: Theme.fontSizeSmall
-                    //height: Theme.iconSizeMedium
-                    placeholderText: qsTr("Tap to enter comment")
-                    EnterKey.enabled: text.length > 0
-                    EnterKey.iconSource: "image://theme/icon-m-message"
-                    EnterKey.onClicked:{
-                        commentInput.focus = false;
-                        Request.sendComment(page.myData.id, commentInput.text, function(Json){
-                            var user = Configurator.getValue("user");
-                            console.log(JSON.stringify(Json));
-                            commentListModel.append({
-                                "id": Json.id,
-                                "from": {
-                                    "id": user.id,
-                                    "name": user.name
-                                },
-                                "message" : commentInput.text,
-                                "created_time" : new Date(),
-                                "like_count":0,
-                                "user_likes": false,
-                                "can_remove": true
-                            });
-                            commentInput.text = ""
+            TextField{
+                id:commentInput
+                anchors.verticalCenter: parent.verticalCenter
+                width: parent.width - Theme.iconSizeMedium
+                font.pixelSize: Theme.fontSizeSmall
+                placeholderText: qsTr("Tap to enter comment")
+                EnterKey.enabled: text.length > 0
+                EnterKey.iconSource: "image://theme/icon-m-message"
+                EnterKey.onClicked:{
+                    commentInput.focus = false;
+                    Request.sendComment(page.myData.id, commentInput.text, function(Json){
+                        var user = Configurator.getValue("user");
+                        console.log(JSON.stringify(Json));
+                        commentListModel.append({
+                            "id": Json.id,
+                            "from": {
+                                "id": user.id,
+                                "name": user.name
+                            },
+                            "message" : commentInput.text,
+                            "created_time" : new Date().getTime(),
+                            "like_count":0,
+                            "user_likes": false,
+                            "can_remove": true
                         });
-                    }
-                    onActiveFocusChanged: mainFlickable.scrollToBottom()
+                        commentInput.text = ""
+                    });
                 }
-                IconButton {
-                    id: commentInputAddImage
-                    icon.source: "image://theme/icon-m-image"
-                    anchors.verticalCenter: commentImage.verticalCenter
-                    onClicked: {
-                        //pushMedia.hide()
-                        //pageStack.push(Qt.resolvedUrl("MediaSelector.qml"), {"mode": "image", "datesort": true, "multiple": true})
-                        //pageStack.currentPage.accepted.connect(mediaReceiver.mediaAccepted)
-                        console.log("todo")
+                onActiveFocusChanged: mainFlickable.scrollToBottom()
+            }
+        }
+        PushUpMenu {
+            id: pushMedia
+            _activeHeight: mediaSendRow.height
+            Item {
+                width: parent.width
+                height: Theme.itemSizeMedium
+
+                Row {
+                    id: mediaSendRow
+                    x: width > parent.width ? 0 : ((parent.width - width) / 2)
+                    height: parent.height
+                    spacing: Theme.paddingSmall
+
+                    IconButton {
+                        icon.source: "image://theme/icon-m-image"
+                        onClicked: {
+                            console.log("todo add image")
+                        }
+                    }
+
+                    IconButton {
+                        icon.source: "image://theme/icon-camera-shutter-release"
+                        onClicked: {
+                            console.log("todo take photo")
+                        }
+                    }
+
+                    IconButton {
+                        icon.source: "image://theme/icon-m-gps"
+                        onClicked: {
+                            console.log("todo add location")
+                        }
+                    }
+
+                    Item {
+                        id: voicePlaceholder
+                        width: Theme.itemSizeSmall
+                        height: Theme.itemSizeSmall
+                    }
+
+                    IconButton {
+                        icon.source: "image://theme/icon-m-people"
+                        onClicked: {
+                            console.log("todo add people")
+                        }
                     }
                 }
             }
-
         }
 
         Component.onCompleted: {
