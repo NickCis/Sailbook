@@ -39,7 +39,8 @@ Page {
         anchors.fill: parent
         //contentHeight: height
         //height: contentItem.childrenRect.height
-        property int childHeight:header.height + body.height + commentsList.height + commentInputRow.height + Theme.paddingSmall
+        //property int childHeight:header.height + body.height + commentsList.height + commentInputRow.height + Theme.paddingSmall
+        property int childHeight: header.height + rowImgText.height + likesLabel.height + body.height + commentsList.height + commentInputRow.height
         contentHeight: parent.height > childHeight ? parent.height : childHeight
         //contentHeight: contentItem.childrenRect.height
 
@@ -78,7 +79,7 @@ Page {
                 id: profilePic
                 height: parent.height - (Theme.paddingSmall * 2)
                 width: height
-                source: "https://graph.facebook.com/v2.0/"+page.myData.from.id+"/picture?type=square"
+                source: "https://graph.facebook.com/v2.0/"+page.myData.from.id+"/picture?height="+Theme.iconSizeLarge+"&width="+Theme.iconSizeLarge
                 anchors {
                     rightMargin: Theme.paddingSmall
                     leftMargin: Theme.paddingSmall
@@ -129,10 +130,16 @@ Page {
         Label {
             function buildText(){
                 var txt = [];
-                if(page.myData.to && page.myData.to.name)
-                    txt.push(qsTr("To")+" "+page.myData.to.name);
+                if(page.myData.to && page.myData.to.data){
+                    var toStr = [];
+                    for(var i=0, t; t = page.myData.to.data[i];i++ )
+                        toStr.push(t.name);
 
-                console.log(page.myData.to);
+                    txt.push(qsTr("To")+" "+toStr.join(", "));
+                }
+
+                if(page.myData.to)
+                    console.log(JSON.stringify(page.myData.to));
                 for(var i=0, it, items = [
                         //(page.myData.to || {}).name,
                         page.myData.story,
@@ -162,11 +169,12 @@ Page {
             function myText(){
                 if(page.myData.likes && page.myData.likes.data && page.myData.likes.data.length)
                     return page.myData.likes.data.length + " " + qsTr("likes");
+                else
+                    height = 0;
                 return "";
             }
 
             id: likesLabel
-            //width: parent.width
             color: Theme.secondaryHighlightColor
             font.pixelSize: Theme.fontSizeTiny
             anchors {
@@ -315,12 +323,12 @@ Page {
         SilicaListView{
             interactive: false
             id: commentsList
-            height: contentItem.childrenRect.height
+            height: contentItem.childrenRect.height+commentInputRow.height
             anchors {
                 //top: body.bottom
                 top: body.bottom
                 topMargin: Theme.paddingMedium
-                bottomMargin: Theme.paddingSmall
+                bottomMargin: Theme.paddingSmall/*+commentInputRow.height*/
                 //bottom: commentInputRow.top
             }
 
